@@ -18,3 +18,6 @@ RUN apt-get clean
 
 VOLUME /workspace
 WORKDIR /workspace
+
+COPY build.sh build.sh
+CMD ["build.sh"]
