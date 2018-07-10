@@ -1,9 +1,14 @@
 #!/bin/sh
-mkdir out
 
-find `pwd` -name "*.md" | while read line
+DIRECTORY="out"
+if [ ! -e $DIRECTORY ]; then
+  mkdir $DIRECTORY
+fi
+
+find `pwd` -name "*.md" | while read LINE
 do
-  echo $line
-  filename=`basename $line .md`
-  pandoc $filename.md -o ./out/$filename.pptx 
+  echo "Convert $LINE ..."
+  FILENAME=`basename $LINE .md`
+  pandoc $LINE -o ./out/$FILENAME.pptx
 done
+echo "Done!"
