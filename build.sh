@@ -9,6 +9,6 @@ find `pwd` -name "*.md" | while read LINE
 do
   echo "Convert $LINE ..."
   FILENAME=`basename $LINE .md`
-  pandoc $LINE -o ./out/$FILENAME.pptx
+  pandoc -F mermaid-filter $LINE -o ./out/$FILENAME.pptx
 done
 echo "Done!"

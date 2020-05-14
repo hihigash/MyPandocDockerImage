@@ -1,24 +1,32 @@
-FROM ubuntu:18.04
+FROM alekzonder/puppeteer
 
-# Update ubuntu
-RUN apt-get update -qq
-RUN apt-get upgrade -qq
+USER root
 
-RUN apt-get install -y wget
-RUN wget -q https://github.com/jgm/pandoc/releases/download/2.2.1/pandoc-2.2.1-1-amd64.deb
-RUN dpkg -i pandoc-2.2.1-1-amd64.deb
+# Install cabel using ghcup
 
-# Install texlive
-RUN apt-get install -y texlive-latex-recommended
+ENV LANG C.UTF-8
+ENV CABAL_WORKDIR="/root"
 
-# install wkhtmltopdf
-RUN apt-get install -y -qq xvfb libfontconfig wkhtmltopdf
+RUN apt-get update \
+    && apt-get install -y build-essential curl git libgmp-dev libffi-dev libncurses-dev libtinfo5 zlib1g-dev
+RUN curl https://get-ghcup.haskell.org -sSf | sh
 
-RUN apt-get clean
+ENV PATH="${CABAL_WORKDIR}/.ghcup/bin:${CABAL_WORKDIR}/.cabal/bin:$PATH"
+
+WORKDIR ${CABAL_WORKDIR}
+RUN cabal new-update
+
+# install pandoc and haskell's filters
+RUN cabal new-install pandoc
+RUN cabal new-install pandoc-citeproc pandoc-crossref
+
+# install lexlive and wkhtmltopdf (for pdf)
+RUN apt-get update \
+    && apt-get install -y texlive-latex-recommended xvfb libfontconfig wkhtmltopdf
+
+# install mermaid-filter
+RUN npm install mermaid-filter
+ENV PATH /root/node_modules/.bin:$PATH
 
 VOLUME /workspace
 WORKDIR /workspace
-
-COPY build.sh /usr/local/bin/build.sh
-RUN chmod +x /usr/local/bin/build.sh
-CMD ["build.sh"]
